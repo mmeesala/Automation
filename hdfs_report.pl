@@ -3,9 +3,17 @@
 # Sr. Hadoop Architect
 # Script Name: hdfs_report.pl
 # Functionality: It will scan the HDFS path and generates the report of user and group usage which was not touched from last 30 days. Also, it will list out all the files names along with size, user and date of the file last touched.
-# Usage : ./hdfs_report <HDFS_PATH>
+# Usage : ./hdfs_report -p <HDFS_PATH_TO_SCAN>
 
 #`hadoop fs -ls -R / | grep ^- > lsr_report.txt`;
+
+use Getopt::Long qw(GetOptions);
+
+my $hdfs_path_to_scan;
+GetOptions('from=p' => \$hdfs_path_to_scan) or die "Usage: $0 -p <HDFS_PATH_TO_SCAN>\n";
+
+`hadoop fs -ls -R \$hdfs_path_to_scan | grep ^- > lsr_report.txt`;
+
 
 `cat lsr_report.txt | awk \'{ print \$3 }\' | sort | uniq > hdfs_file_ownerslist.txt`;
 `cat lsr_report.txt | awk \'{ print \$4 }\' | sort | uniq > hdfs_file_grouplist.txt`;

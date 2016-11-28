@@ -3,9 +3,19 @@
 # Sr. Hadoop Architect
 # Script Name: hdfs_report.pl
 # Functionality: It will scan the HDFS path and generates the report of user and group usage which was not touched from last 30 days. Also, it will list out all the files names along with size, user and date of the file last touched.
-# Usage : ./hdfs_report 
 
-`hadoop fs -ls -R / | grep ^- > lsr_report.txt`;
+# Usage : ./hdfs_report.pl /hdfs_path1 /hdfs_path2 etc
+
+($path1)=@ARGV;
+
+if (not defined $path1) { die "Atleast one argument needed. Any HDFS dir as path to scan!.\n"; }
+
+#print "Path = $path1\n";
+#print "Path = @ARGV\n";
+
+$PATHS_TO_SCAN="@ARGV";
+
+`hadoop fs -ls -R $PATHS_TO_SCAN | grep ^- > lsr_report.txt`;
 
 `cat lsr_report.txt | awk \'{ print \$3 }\' | sort | uniq > hdfs_file_ownerslist.txt`;
 `cat lsr_report.txt | awk \'{ print \$4 }\' | sort | uniq > hdfs_file_grouplist.txt`;
@@ -31,11 +41,9 @@ $FILESIZE=10240;
 for $USER (`cat hdfs_file_ownerslist.txt`)
 {
 	chop($USER);
-	#print "MM = $USER";
-	chomp($user_usage=`awk  \'\$2 ~ /^$USER\$/ {sum+=\$4} END {printf (\"\%.2f\", sum/(1024*1024*1024*1024) ) }\' consider_files.txt`); 
-
+	chomp($user_usage=`awk  \'\$2 ~ /^$USER\$/ {sum+=\$4} END {printf (\"\%.2f\", sum/(1024^4) ) }\' consider_files.txt`); 
 	chomp($FILENAMES=`awk  \'\$2 ~ /^$USER\$/  && \$2 > \$FILESIZE { print \$2,\$4,\$5,\$6 }\' consider_files.txt`); 
-
+	
 	if ($user_usage >= 1.0) {
 	print USER_USAGE_DATA "$USER = $user_usage TB\n";
 	#print "$FILENAMES\n";
@@ -45,7 +53,6 @@ for $USER (`cat hdfs_file_ownerslist.txt`)
 close(USER_USAGE_DATA);
 close(USER_FILE_DATA);
 ## Processing group data
-
 
 open (GROUP_USAGE_DATA,">group_usage_data.txt");
 
@@ -77,4 +84,3 @@ $DATA=`cat group_usage_data.txt | sort -rnk3`;
 print $DATA;
 print "----------------------------------------------------";
 print "Done!";
-

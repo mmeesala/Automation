@@ -7,6 +7,14 @@
 # Usage: ./create_keytab.sh
 # Input file: keyids.txt
 
+if [ ! -f keyids.txt ]
+then
+        echo "keyids.txt file doesn't exists"
+        echo "Please provide the keyids.txt file with Keytab_Principal_name:Keytab_Password format"
+        echo "Exiting...!"
+        exit
+fi
+
 for line in `cat keyids.txt`
 do
         var=$(echo $line | awk -F":" '{print $1,$2}')

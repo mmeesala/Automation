@@ -1,4 +1,10 @@
 #! /usr/bin/perl
+# Author: Murali Meesala <murali.meesala@gmail.com>
+# Script: gen_tnsnames_ora_file.pl
+# Version: v1.0
+# Functionality: It will read tns.dat file which has OBJECT_STRING, HOST, PORT, SID and generate the tnsnames.ora file
+# Usage: ./gen_tnsnames_ora_file.pl
+# Output: It will generate master_tnsnames.ora file 
 
 open (IN,"<tns.dat");
 open (OUT,">master_tnsnames.ora");

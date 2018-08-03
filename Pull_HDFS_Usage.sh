@@ -1,11 +1,11 @@
 #! /bin/bash
-# Author : Murali Meesala, <murali.meesala@ge.com>
+# Author : Murali Meesala, <murali.meesala@gmail.com>
 # Script :
 # Version :v1.0
-# Functioanlity : It gets the HDFS Usage at User and Group Level in POD2 Production.
+# Functioanlity : It gets the HDFS Usage at User and Group Level in the Hadoop cluster.
 #
 
-HDFS_PATHS="/PHHD /apps /backups /benchmarks /data /dev /etl3_4_backup /hawq_data /hive /mapred /retail_demo /smartdubai /user /xd /yarn"
+HDFS_PATHS="/apps /backups /benchmarks /data /dev /etl  /hive /mapred  /user /xd /yarn"
 hadoop fs -ls $HDFS_PATHS | grep -v "Found" | awk '{ print $3,$4,$8}' > HDFS_Aggregate.txt
 cat HDFS_Aggregate.txt | awk '{ print $1 }' | sort | uniq > uniq_users.txt
 cat HDFS_Aggregate.txt | awk '{ print $2 }' | sort | uniq > uniq_groups.txt
@@ -16,7 +16,7 @@ for i in `cat uniq_groups.txt`; do printf "$i:"; cat HDFS_Aggregate.txt | grep $
 #echo "HDFS User Usage:" > UUsage.txt
 for i in `cat uniq_users.txt`; do printf "$i:"; cat HDFS_Aggregate.txt | grep $i | awk '{ print $3}' | xargs hadoop fs -du  |  awk '{sum+=$1} END { printf "%0.2f GB\n",sum/(1024^3)}'; done > UUsage.txt
 
-echo "Consolidated Report @ `date` - POD2 Production" > Report.txt
+echo "Consolidated Report @ `date` - Hadoop Cluster " > Report.txt
 echo "Scanned HDFS paths : $HDFS_PATHS" >>Report.txt
 echo "----------------------------------------------------" >> Report.txt
 
@@ -28,6 +28,6 @@ cat GUsage.txt | grep -v "0.00" | sort -rn -t':' -k2 >> Report.txt
 echo "----------------------------------------------------" >> Report.txt
 echo "Thank you," >> Report.txt
 echo "DataLake Team." >> Report.txt
-mail -s "HDFS Usage - POD2 Production" murali.meesala@ge.com < Report.txt 
+mail -s "HDFS Usage - Hadoop Cluster" murali.meesala@gmail.com < Report.txt 
 
 rm -rf HDFS_Aggregate.txt  uniq_users.txt  uniq_groups.txt Report.txt  GUsage.txt UUsage.txt
